@@ -1,3 +1,8 @@
+body{
+    background-color: #1d1d1d;
+}
+
+
 .white-tile{
     background-color: #eee;
 
@@ -18,7 +23,7 @@
     display: grid;
     grid-template-columns: repeat(8, 60px);
     grid-template-rows: repeat(8, 60px);
-    border: 2px solid #222;
+    border: 2px solid #1d1d1d;
     width: fit-content;
     position: absolute;
     top:50%;
@@ -46,4 +51,10 @@
 .black{
 color: black;
 text-shadow: 0 0 3px #fff
+}
+
+.selected{
+background-color: rgba(209, 195, 0, 0.692);
+outline: 2px solid gold;
+border-radius: 4px;
 }

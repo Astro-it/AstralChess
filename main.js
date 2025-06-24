@@ -1,31 +1,39 @@
-class tile{
-constructor(row, column){
-this.row = row;
+
+
+const pieces = [];      // creates a pieces array
+const tiles = [];       // creates a tiles array
+let selectedPiece = null;       // declares the vriable selectedPiece and assigns the value null
+
+
+class tile{         //creates a tile class
+constructor(row, column){           // makes a constructor with the parameters row and column
+this.row = row;                             // assigns the parameters to the instance properties
 this.column = column;
-this.div = document.createElement("div");
-board.appendChild(this.div);
-this.color = true;
+this.div = document.createElement("div");       // creates a div element and assigns it to this.div
+board.appendChild(this.div);            // appends this.div to the board
+this.color = true;          // sets the this.color boolean to true 
 }
-set color(color){
-if ((this.row + this.column) % 2 === 0){
-    this.div.classList.add(`white-tile`);
+set color(color){       // creates a set for the tile colors
+if ((this.row + this.column) % 2 === 0){        /* makes it so that when row + column % 2 === 0 the css class white-tile is added
+                                                   and if not the css class black-tile is added which makes the chess board pattern */
+    this.div.classList.add(`white-tile`);          
 }
 else{
     this.div.classList.add(`black-tile`);
 }
 }
 }
-const tiles = [];
-for (let row = 0; row < 8; row++){
+
+for (let row = 0; row < 8; row++){          // this is a for loop to create all the tiles with the right col and row positions
 tiles[row] = [];
 for (let col = 0; col < 8; col++){
 const t = new tile(row, col);
 tiles[row][col] = t;
 }
 }
-class piece{
-constructor(type, color, position, element, hasMoved, captured){
-    this.type = type;
+class piece{            // creates a class for all pieces
+constructor(type, color, position, element, hasMoved, captured){        // makes a constructor with the parameters type, color, position, element, hasMoved, captured
+    this.type = type;                       // assigns the parameters to instance properties
     this.color = color;
     this.position = position;
     this.element = element;
@@ -155,8 +163,24 @@ for (let col = 0; col < 8; col++) {
  pieces.push(whiteKing);
  pieces.push(blackKing);
  
+for (const piece of pieces) {
+  piece.element.addEventListener("click", () => handlePieceClick(piece));
+}
 }
 
-const pieces = [];
+function handlePieceClick(piece){
+    if (selectedPiece === piece){
+        selectedPiece.element.classList.remove(`selected`);
+        selectedPiece = null;
+    }
+    else{
+        if (selectedPiece){
+            selectedPiece.element.classList.remove("selected");
+        }
+        selectedPiece = piece;
+        piece.element.classList.add(`selected`);
+    }
+}
+
 
 setupPieces();

@@ -61,7 +61,7 @@ class knight extends piece{
 }
 
 class bishop extends piece{
-    constructor(color, postion){
+    constructor(color, position){
          const element = document.createElement('div');
          element.classList.add('piece', 'bishop', color);
          element.innerText = color === `white` ? '♗' : "♝";

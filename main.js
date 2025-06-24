@@ -115,7 +115,45 @@ for (let col = 0; col < 8; col++) {
  pieces.push(blackRook1);
  pieces.push(blackRook2);
  
+ const whiteKnight1 = new knight('white', [7, 1]);
+ const whiteKnight2 = new knight('white', [7, 6]);
+ const blackKnight1 = new knight('black', [0, 1]);
+ const blackKnight2 = new knight('black', [0, 6]);
+ tiles[7][1].div.apppenChild(whiteKnight1.element);
+ tiles[7][6].div.apppenChild(whiteKnight2.element);
+ tiles[0][1].div.apppenChild(blackKnight1.element);
+ tiles[0][6].div.apppenChild(blackKnight2.element);
+ pieces.push(whiteKnight1);
+ pieces.push(whiteKnight2);
+ pieces.push(blackKnight1);
+ pieces.push(blackKnight2);
  
+ const whiteBishop1 = new bishop('white', [7, 2]);
+ const whiteBishop2 = new bishop('white', [7, 5]);
+ const blackBishop1 = new bishop('black', [0, 2]);
+ const blackBishop2 = new bishop('black', [0, 5]);
+ tiles[7][2].div.appendChild(whiteBishop1.element);
+ tiles[7][5].div.appendChild(whiteBishop2.element);
+ tiles[0][2].div.appendChild(blackBishop1.element);
+ tiles[0][5].div.appendChild(blackBishop2.element);
+ pieces.push(whiteBishop1);
+ pieces.push(whiteBishop2);
+ pieces.push(blackBishop1);
+ pieces.push(blackBishop2);
+ 
+ const whiteQueen = new queen('white', [7, 3]);
+ const blackQueen = new queen('black', [0, 3]);
+ tiles[7][3].div.appendChild(whiteQueen.element);
+ tiles[0][3].div.appendChild(blackQueen.element);
+ pieces.push(whiteQueen);
+ pieces.push(blackQueen);
+ 
+ const whiteKing = new king('white', [7, 4]);
+ const blackKing = new king('black', [0, 4]);
+ tiles[7][4].div.appendChild(whiteKing.element);
+ tiles[0][4].div.appendChild(blackKing.element);
+ pieces.push(whiteKing);
+ pieces.push(blackKing);
  
 }
 

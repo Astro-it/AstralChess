@@ -119,10 +119,10 @@ for (let col = 0; col < 8; col++) {
  const whiteKnight2 = new knight('white', [7, 6]);
  const blackKnight1 = new knight('black', [0, 1]);
  const blackKnight2 = new knight('black', [0, 6]);
- tiles[7][1].div.apppenChild(whiteKnight1.element);
- tiles[7][6].div.apppenChild(whiteKnight2.element);
- tiles[0][1].div.apppenChild(blackKnight1.element);
- tiles[0][6].div.apppenChild(blackKnight2.element);
+ tiles[7][1].div.appendChild(whiteKnight1.element);
+ tiles[7][6].div.appendChild(whiteKnight2.element);
+ tiles[0][1].div.appendChild(blackKnight1.element);
+ tiles[0][6].div.appendChild(blackKnight2.element);
  pieces.push(whiteKnight1);
  pieces.push(whiteKnight2);
  pieces.push(blackKnight1);

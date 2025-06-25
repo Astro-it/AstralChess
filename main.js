@@ -3,6 +3,7 @@
 const pieces = [];      // creates a pieces array
 const tiles = [];       // creates a tiles array
 let selectedPiece = null;       // declares the vriable selectedPiece and assigns the value null
+let currentTurn = `white`;         // creates a current turn variable and assigns white to it
 
 
 class tile{         //creates a tile class
@@ -178,8 +179,9 @@ for (const piece of pieces) {
 }
 
 
-
 function handlePieceClick(piece){
+    if (piece.color !== currentTurn) return;
+
     if (selectedPiece === piece){
         selectedPiece.element.classList.remove(`selected`);
         selectedPiece = null;
@@ -207,6 +209,9 @@ function handleTileClick(row, col) {
 
   // Clear selection
   selectedPiece = null;
+
+  //switch turn 
+  currentTurn = currentTurn === `white` ? `black` : `white`;
 }
 
 

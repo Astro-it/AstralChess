@@ -26,9 +26,14 @@ else{
 
 for (let row = 0; row < 8; row++){          // this is a for loop to create all the tiles with the right col and row positions
 tiles[row] = [];
+
 for (let col = 0; col < 8; col++){
 const t = new tile(row, col);
 tiles[row][col] = t;
+
+t.color = true;         // triggers the setter and applies the tile color
+
+t.div.addEventListener("click", () => handleTileClick(row, col));
 }
 }
 class piece{            // creates a class for all pieces
@@ -162,11 +167,17 @@ for (let col = 0; col < 8; col++) {
  tiles[0][4].div.appendChild(blackKing.element);
  pieces.push(whiteKing);
  pieces.push(blackKing);
- 
+
 for (const piece of pieces) {
-  piece.element.addEventListener("click", () => handlePieceClick(piece));
+  piece.element.addEventListener("click", (event) => {
+    event.stopPropagation();              // Stop bubbling to tile
+    handlePieceClick(piece);             // Handle selecting/deselecting
+  });
 }
+
 }
+
+
 
 function handlePieceClick(piece){
     if (selectedPiece === piece){
@@ -180,6 +191,22 @@ function handlePieceClick(piece){
         selectedPiece = piece;
         piece.element.classList.add(`selected`);
     }
+}
+
+function handleTileClick(row, col) {
+  if (!selectedPiece) return;
+
+  // Move the selected piece's element
+  tiles[row][col].div.appendChild(selectedPiece.element);
+
+  // Update its position
+  selectedPiece.position = [row, col];
+
+  // Remove highlight
+  selectedPiece.element.classList.remove("selected");
+
+  // Clear selection
+  selectedPiece = null;
 }
 
 

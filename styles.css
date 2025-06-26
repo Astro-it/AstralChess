@@ -17,6 +17,7 @@ body{
     height: 60px;
     display: inline-block;
     transition: background-color 0.2s ease;
+    position: relative;
 }
 
 #board {
@@ -57,4 +58,17 @@ text-shadow: 0 0 3px #fff
 background-color: rgba(209, 195, 0, 0.692);
 outline: 2px solid gold;
 border-radius: 4px;
+}
+
+.legalMoves::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;            /* size of the circle */
+  height: 20px;
+  background-color: rgba(128, 128, 128, 0.6); /* grey with 60% opacity */
+  border-radius: 50%;     /* makes it a circle */
+  transform: translate(-50%, -50%); /* centers it exactly */
+  pointer-events: none;   /* so it doesn't block clicks */
 }

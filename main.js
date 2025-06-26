@@ -47,6 +47,20 @@ constructor(type, color, position, element, hasMoved, captured){        // makes
     this.captured = captured;
 }
 }
+
+function isOnBoard(row, col) {
+  return row >= 0 && row < 8 && col >= 0 && col < 8;
+}
+
+function isEmpty(row, col) {
+  return !getPieceAt(row, col);
+}
+
+function getPieceAt(row, col) {
+  return pieces.find(p => !p.captured && p.position[0] === row && p.position[1] === col);
+}
+
+
 class pawn extends piece{
 constructor(color, position){
     const element = document.createElement(`div`);
@@ -54,6 +68,42 @@ constructor(color, position){
     element.innerText = color === `white` ? "♙" : "♟︎";
     super(`pawn`, color, position, element, false, false);
 }
+
+getLegalMoves() {
+  const moves = [];
+  const [row, col] = this.position;
+
+  const direction = this.color === "white" ? -1 : 1;
+
+  const oneStep = [row + direction, col];
+  const twoStep = [row + 2 * direction, col];
+
+  // Check one step forward
+  if (isOnBoard(oneStep[0], oneStep[1]) && isEmpty(oneStep[0], oneStep[1])) {
+    moves.push(oneStep);
+
+    // Check two steps forward only if first is also empty
+    if (!this.hasMoved && isEmpty(twoStep[0], twoStep[1])) {
+      moves.push(twoStep);
+    }
+  }
+
+  // Check captures
+  for (const dx of [-1, 1]) {
+    const targetRow = row + direction;
+    const targetCol = col + dx;
+
+    if (isOnBoard(targetRow, targetCol)) {
+      const targetPiece = getPieceAt(targetRow, targetCol);
+      if (targetPiece && targetPiece.color !== this.color) {
+        moves.push([targetRow, targetCol]);
+      }
+    }
+  }
+
+  return moves;
+}
+
 }
     
 class rook extends piece{
@@ -182,6 +232,8 @@ for (const piece of pieces) {
 function handlePieceClick(piece){
     if (piece.color !== currentTurn) return;
 
+    clearHighlights();
+
     if (selectedPiece === piece){
         selectedPiece.element.classList.remove(`selected`);
         selectedPiece = null;
@@ -192,11 +244,26 @@ function handlePieceClick(piece){
         }
         selectedPiece = piece;
         piece.element.classList.add(`selected`);
+
+         const legalMoves = piece.getLegalMoves();
+        for (const [row, col] of legalMoves) {
+            tiles[row][col].div.classList.add("legalMoves");
+        }
+
     }
 }
 
 function handleTileClick(row, col) {
   if (!selectedPiece) return;
+
+    // Get the legal moves
+  const legalMoves = selectedPiece.getLegalMoves();
+
+  const isLegal = legalMoves.some(
+  move => move[0] === row && move[1] === col
+);
+
+ if (!isLegal) return;
 
   // Move the selected piece's element
   tiles[row][col].div.appendChild(selectedPiece.element);
@@ -204,14 +271,26 @@ function handleTileClick(row, col) {
   // Update its position
   selectedPiece.position = [row, col];
 
+  selectedPiece.hasMoved = true;
+
   // Remove highlight
   selectedPiece.element.classList.remove("selected");
 
   // Clear selection
   selectedPiece = null;
 
+  clearHighlights();
+
   //switch turn 
   currentTurn = currentTurn === `white` ? `black` : `white`;
+}
+
+function clearHighlights() {
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      tiles[row][col].div.classList.remove("legalMoves");
+    }
+  }
 }
 
 

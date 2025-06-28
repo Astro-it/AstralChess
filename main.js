@@ -113,6 +113,39 @@ constructor(color, position){
     element.innerText = color === `white` ? '♖' : "♜";
     super(`rook`, color, position, element, false, false);
 }
+
+getLegalMoves() {
+  const moves = [];
+  const [row, col] = this.position;
+
+  const directions = [
+    [-1, 0], // up
+    [1, 0],  // down
+    [0, -1], // left
+    [0, 1]   // right
+  ];
+
+  for (const [dRow, dCol] of directions) {
+    let r = row + dRow;
+    let c = col + dCol;
+    while (isOnBoard(r, c)) {
+      const target = getPieceAt(r, c);
+      if (!target) {
+        moves.push([r, c]);
+      } else {
+        if (target.color !== this.color) {
+          moves.push([r, c]); // capturing move
+        }
+        break; // stop looking further in this direction
+      }
+      r += dRow;
+      c += dCol;
+    }
+  }
+
+  return moves;
+}
+
 }
 
 class knight extends piece{
@@ -122,6 +155,37 @@ class knight extends piece{
         element.innerText = color === `white` ? '♘' : "♞";
         super(`knight`, color, position, element, false, false);
     }
+
+    getLegalMoves() {
+      const moves = [];
+      const [row, col] = this.position;
+
+      const directions = [
+        [-2, -1], // up left
+        [-2, 1],  // up right
+        [-1, 2],  // right up
+        [1, 2],   // right down
+        [-1, -2], // left up
+        [1, -2],  // left down
+        [2, -1],  // down left
+        [2, 1]   // down right
+      ];
+
+      for (const [drow, dcol] of directions) {
+        let r = row + drow;
+        let c = col + dcol;
+       
+        if ( isOnBoard(r, c)) {
+          const target = getPieceAt(r, c);
+          if ( !target || target.color !== this.color) {
+            moves.push([r, c]);
+          }
+        }
+      }
+      
+      return moves;
+    }
+
 }
 
 class bishop extends piece{

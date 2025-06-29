@@ -171,9 +171,9 @@ class knight extends piece{
         [2, 1]   // down right
       ];
 
-      for (const [drow, dcol] of directions) {
-        let r = row + drow;
-        let c = col + dcol;
+      for (const [dRow, dCol] of directions) {
+        let r = row + dRow;
+        let c = col + dCol;
        
         if ( isOnBoard(r, c)) {
           const target = getPieceAt(r, c);
@@ -195,6 +195,40 @@ class bishop extends piece{
          element.innerText = color === `white` ? '♗' : "♝";
          super(`bishop`, color, position, element, false, false);
     }
+
+    getLegalMoves() {
+      const moves = [];
+      const [row, col] = this.position;
+
+      const directions = [
+        [-1, -1],  // up left
+        [-1, 1],   // up right
+        [1, -1],   // down left
+        [1, 1]     // down right
+      ];
+
+      for (const [dRow, dCol] of directions) {
+        let r = row + dRow;
+        let c = col + dCol;
+        while (isOnBoard(r, c)) {
+          const target = getPieceAt(r, c);
+          if (!target) {
+            moves.push([r, c]);
+          }
+          else {
+            if (target.color !== this.color) {
+              moves.push([r, c]);   // capturing move
+            }
+            break;     // stop looking further in this direction
+          }
+          r += dRow;
+          c += dCol;
+        }
+      }
+
+      return moves;
+    }
+
 }
 
 class queen extends piece{
@@ -204,6 +238,44 @@ class queen extends piece{
         element.innerText = color === `white` ? '♕' : "♛";
         super(`queen`, color, position, element, false, false);
     }
+
+    getLegalMoves() {
+      const moves = [];
+      const [row, col] = this.position;
+
+      const directions = [
+        [-1, 0],   // up
+        [-1, -1],  // up left
+        [-1, 1],   // up right
+        [0, -1],   // left
+        [0, 1],    // right
+        [1, 0],    // down
+        [1, -1],   // down left
+        [1, 1]     // down right
+      ]
+
+      for (const [dRow, dCol] of directions) {
+        let r = row + dRow;
+        let c = col + dCol;
+        while (isOnBoard(r, c)) {
+          const target = getPieceAt(r, c);
+          if (!target) {
+            moves.push([r, c]);
+          }
+          else {
+            if (target.color !== this.color) {
+              moves.push([r, c]); // capturing move
+            }
+            break;
+          }
+          r += dRow;
+          c += dCol;
+        }
+      }
+
+      return moves;
+    }
+
 }
 
 class king extends piece{
@@ -213,6 +285,37 @@ class king extends piece{
         element.innerText = color === `white` ? '♔' : "♚";
         super(`king`, color, position, element, false, false);
     }
+
+    getLegalMoves() {
+      const moves = [];
+      const [row, col] = this.position;
+
+      const directions = [
+        [-1, 0],   // up
+        [-1, -1],  // up left
+        [-1, 1],   // up right 
+        [0, -1],   // left
+        [0, 1],    // right
+        [1, 0],    // bottom
+        [1, -1],   // bottom left
+        [1, 1]     // bottom right
+      ];
+
+      for (const [dRow, dCol] of directions) {
+        let r = row + dRow;
+        let c = col + dCol;
+
+        if (isOnBoard(r, c)) {
+          const target = getPieceAt(r, c);
+          if(!target || target.color !== this.color) {
+            moves.push([r, c]);
+          }
+        }
+      }
+
+      return moves;
+    }
+
 }
 
 function setupPieces(){

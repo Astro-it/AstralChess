@@ -389,7 +389,22 @@ for (let col = 0; col < 8; col++) {
 for (const piece of pieces) {
   piece.element.addEventListener("click", (event) => {
     event.stopPropagation();              // Stop bubbling to tile
-    handlePieceClick(piece);             // Handle selecting/deselecting
+    
+    const [row, col] = piece.position;
+
+   if (selectedPiece) {
+    const legalMoves = selectedPiece.getLegalMoves();
+    const isCapture = legalMoves.some(move => move[0] === row && move[1] === col);  
+
+    if (isCapture) {
+        handleTileClick(row, col); // Simulate move & capture
+        return;
+      }
+    }
+    
+      // No piece selected — normal select behavior
+      handlePieceClick(piece);
+    
   });
 }
 
@@ -431,6 +446,13 @@ function handleTileClick(row, col) {
 );
 
  if (!isLegal) return;
+
+ // Check if there's a piece to capture
+const target = getPieceAt(row, col);
+if (target && target.color !== selectedPiece.color) {
+  target.captured = true;
+  target.element.remove(); // Remove the piece visually from the board
+}
 
   // Move the selected piece's element
   tiles[row][col].div.appendChild(selectedPiece.element);

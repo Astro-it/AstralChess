@@ -393,7 +393,7 @@ for (const piece of pieces) {
     const [row, col] = piece.position;
 
    if (selectedPiece) {
-    const legalMoves = selectedPiece.getLegalMoves();
+    const legalMoves = getLegalMovesSafe(selectedPiece);
     const isCapture = legalMoves.some(move => move[0] === row && move[1] === col);  
 
     if (isCapture) {
@@ -402,14 +402,65 @@ for (const piece of pieces) {
       }
     }
     
-      // No piece selected — normal select behavior
+   if (piece.color === currentTurn) {
       handlePieceClick(piece);
+    }
     
   });
 }
 
 }
 
+function isInCheck(color) {
+  const king = pieces.find(p => p.type === "king" && p.color === color && !p.captured);
+  if (!king) return false;
+
+  for (const piece of pieces) {
+    if (piece.color !== color && !piece.captured) {
+      const moves = piece.getLegalMoves();
+      if (moves.some(([r, c]) => r === king.position[0] && c === king.position[1])) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function getLegalMovesSafe(piece) {
+  const legalMoves = piece.getLegalMoves();
+  const safeMoves = [];
+
+  for (const [row, col] of legalMoves) {
+    const originalPos = [...piece.position];
+    const targetPiece = getPieceAt(row, col);
+
+    // Simulate move
+    piece.position = [row, col];
+    if (targetPiece) targetPiece.captured = true;
+
+    const kingSafe = !isInCheck(piece.color);
+
+    // Undo move
+    piece.position = originalPos;
+    if (targetPiece) targetPiece.captured = false;
+
+    if (kingSafe) safeMoves.push([row, col]);
+  }
+
+  return safeMoves;
+}
+
+function isCheckmateOrStalemate(color) {
+  const allPieces = pieces.filter(p => p.color === color && !p.captured);
+
+  for (const p of allPieces) {
+    const moves = getLegalMovesSafe(p);
+    if (moves.length > 0) return false;
+  }
+
+  return isInCheck(color) ? "checkmate" : "stalemate";
+}
 
 function handlePieceClick(piece){
     if (piece.color !== currentTurn) return;
@@ -427,7 +478,7 @@ function handlePieceClick(piece){
         selectedPiece = piece;
         piece.element.classList.add(`selected`);
 
-         const legalMoves = piece.getLegalMoves();
+         const legalMoves = getLegalMovesSafe(piece);
         for (const [row, col] of legalMoves) {
             tiles[row][col].div.classList.add("legalMoves");
         }
@@ -437,13 +488,14 @@ function handlePieceClick(piece){
 
 function handleTileClick(row, col) {
   if (!selectedPiece) return;
+  if (piece.captured) return;
 
     // Get the legal moves
-  const legalMoves = selectedPiece.getLegalMoves();
+  const legalMoves = getLegalMovesSafe(selectedPiece);
 
   const isLegal = legalMoves.some(
-  move => move[0] === row && move[1] === col
-);
+    move => move[0] === row && move[1] === col
+  );
 
  if (!isLegal) return;
 
@@ -469,6 +521,20 @@ if (target && target.color !== selectedPiece.color) {
   selectedPiece = null;
 
   clearHighlights();
+
+  const result = isCheckmateOrStalemate(currentTurn === "white" ? "black" : "white");
+
+  if (result) {
+  // Delay alert slightly so DOM updates first
+  setTimeout(() => {
+    if (result === "checkmate") {
+      alert(`${currentTurn} wins by checkmate!`);
+    } else if (result === "stalemate") {
+      alert("Draw by stalemate!");
+    }
+  }, 50); // 50 ms
+  return;
+}
 
   //switch turn 
   currentTurn = currentTurn === `white` ? `black` : `white`;

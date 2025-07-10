@@ -1,10 +1,11 @@
 
-
+const boardHistory = new Map();
 const pieces = [];      // creates a pieces array
 const tiles = [];       // creates a tiles array
 let selectedPiece = null;       // declares the vriable selectedPiece and assigns the value null
 let currentTurn = `white`;         // creates a current turn variable and assigns white to it
-
+let lastMove = null;
+let halfMoveCounter = 0;
 
 class tile{         //creates a tile class
 constructor(row, column){           // makes a constructor with the parameters row and column
@@ -85,8 +86,12 @@ getLegalMoves() {
     // Check two steps forward only if first is also empty
     if (!this.hasMoved && isEmpty(twoStep[0], twoStep[1])) {
       moves.push(twoStep);
+
+      
     }
   }
+
+
 
   // Check captures
   for (const dx of [-1, 1]) {
@@ -101,6 +106,21 @@ getLegalMoves() {
     }
   }
 
+  for (const dx of [-1, 1]) {
+  const sideCol = col + dx;
+  const sidePawn = getPieceAt(row, sideCol);
+
+  if (
+    sidePawn &&
+    sidePawn.type === "pawn" &&
+    sidePawn.color !== this.color &&
+    sidePawn === lastMove?.piece &&
+    Math.abs(lastMove.from[0] - lastMove.to[0]) === 2 &&
+    lastMove.to[0] === row
+  ) {
+    moves.push([row + direction, sideCol]);
+  }
+}
   return moves;
 }
 
@@ -287,7 +307,7 @@ class king extends piece{
     }
 
     getLegalMoves() {
-      const moves = [];
+      let moves = [];
       const [row, col] = this.position;
 
       const directions = [
@@ -312,6 +332,40 @@ class king extends piece{
           }
         }
       }
+
+      if (!this.hasMoved && !isInCheck(this.color)) {
+        //kingside
+        const rookK = getPieceAt(row, 7);
+        if ( 
+          rookK && rookK.type === `rook` && !rookK.hasMoved &&
+          isEmpty(row, 5) && isEmpty(row, 6) && 
+          simulateMoveAndCheck(this, [row, 5]) &&
+          simulateMoveAndCheck(this, [row, 6]) 
+        ) {
+          moves.push([row, 6]);
+        }
+
+        //queenside
+        const rookQ = getPieceAt(row, 0);
+        if(
+          rookQ && rookQ.type === `rook` && !rookQ.hasMoved &&
+          isEmpty(row, 1) && isEmpty(row, 2) && isEmpty(row, 3) &&
+          simulateMoveAndCheck(this, [row, 3]) &&
+          simulateMoveAndCheck(this, [row, 2])
+        ) {
+          moves.push([row, 2]);
+        }
+      }
+
+      const enemyKing = pieces.find(
+  p => p.type === "king" && p.color !== this.color && !p.captured
+);
+
+  if (enemyKing) {
+    moves = moves.filter(
+      move => !areKingsAdjacent(move, enemyKing.position)
+    );
+  }
 
       return moves;
     }
@@ -408,7 +462,164 @@ for (const piece of pieces) {
     
   });
 }
+}
 
+function showPromotionOptions (piece, callback) {
+  if (!piece || !piece.position || !Array.isArray(piece.position)) {
+    console.error("Invalid piece or position:", piece);
+    return;
+  }
+
+  const [row, col] = piece.position;
+  const color = piece.color;
+
+  const overlay = document.createElement(`div`);
+  overlay.classList.add(row === 0 ? "promotion-overlayW" : "promotion-overlayB");
+
+  const options = ["queen", "rook", "bishop", "knight"];
+    const symbols = color === "white" 
+    ? ["♕", "♖", "♗", "♘"]
+    : ["♛", "♜", "♝", "♞"];
+  
+  for (let i = 0; i < options.length; i++) {
+    const type = options[i];
+    const symbol = symbols[i];
+
+    const button = document.createElement("button");
+    button.innerText = symbol;
+
+    // Add classes
+    button.classList.add("promotion-btn", type);
+
+    // Simulate tile background (optional: alternate colors)
+    const tileColorClass = (row + col + i) % 2 === 0 ? "white-tile" : "black-tile";
+    button.classList.add(tileColorClass);
+
+    // On click: remove overlay and call back with piece type
+    button.addEventListener("click", () => {
+      document.body.removeChild(overlay);
+      callback(type);
+    });
+
+    overlay.appendChild(button);
+  }
+
+  document.body.appendChild(overlay);
+}
+
+function promotePawn(pawn, newType) {
+  const [row, col] = pawn.position;
+
+  //remove pawn
+  pawn.captured = true;
+  pawn.element.remove();
+
+  let newPiece;
+  switch (newType) {
+    case `queen`:
+      newPiece = new queen(pawn.color, [row, col]);
+      break;
+    case `rook`:
+      newPiece = new rook(pawn.color, [row, col]);
+      break;
+    case `bishop`:
+      newPiece = new bishop(pawn.color, [row, col]);
+      break;
+    case `knight`:
+      newPiece = new knight(pawn.color, [row, col]);
+      break;
+  }
+
+  tiles[row][col].div.appendChild(newPiece.element);
+  
+  pieces.push(newPiece);
+
+  newPiece.element.addEventListener("click", (event) => {
+    event.stopPropagation();
+
+    const [r, c] = newPiece.position;
+
+        if (selectedPiece) {
+      const legalMoves = getLegalMovesSafe(selectedPiece);
+      const isCapture = legalMoves.some(move => move[0] === r && move[1] === c);
+      if (isCapture) {
+        handleTileClick(r, c);
+        return;
+      }
+    }
+
+      if (newPiece.color === currentTurn) {
+      handlePieceClick(newPiece);
+    }
+  });
+}
+
+
+function isDrawByInsufficientMaterial() {
+  const activePieces = pieces.filter(p => !p.captured);
+  const pieceTypes = activePieces.map(p => p.type);
+  const numPieces = activePieces.length;
+
+  if (numPieces === 2) {
+    // King vs King
+    return true;
+  }
+
+  if (numPieces === 3) {
+    const minorPiece = activePieces.find(p => p.type !== "king");
+    if (minorPiece && (minorPiece.type === "bishop" || minorPiece.type === "knight")) {
+      // King and bishop or knight vs king
+      return true;
+    }
+  }
+
+  if (numPieces === 4) {
+    // King and bishop vs king and bishop (same color square)
+    const bishops = activePieces.filter(p => p.type === "bishop");
+    if (bishops.length === 2) {
+      const squareColors = bishops.map(b => {
+        const [r, c] = b.position;
+        return (r + c) % 2 === 0 ? "light" : "dark";
+      });
+      if (squareColors[0] === squareColors[1]) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+
+function getBoardStateKey() {
+  const activePieces = pieces
+    .filter(p => !p.captured)
+    .map(p => `${p.type}_${p.color}_${p.position[0]}_${p.position[1]}`)
+    .sort() // ensure same position gives same string
+    .join("|");
+
+  return `${currentTurn}:${activePieces}`;
+}
+
+function simulateMoveAndCheck(piece, [row, col]) {
+  const originalPos = [...piece.position];
+  const targetPiece = getPieceAt(row, col);
+
+  piece.position = [row, col];
+  if(targetPiece) targetPiece.captured = true;
+
+  const safe = !isInCheck(piece.color);
+
+  piece.position = originalPos;
+  if (targetPiece) targetPiece.captured = false;
+
+  return safe;
+}
+
+function areKingsAdjacent(pos1, pos2) {
+  const [r1, c1] = pos1;
+  const [r2, c2] = pos2;
+  return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1;
 }
 
 function isInCheck(color) {
@@ -416,7 +627,7 @@ function isInCheck(color) {
   if (!king) return false;
 
   for (const piece of pieces) {
-    if (piece.color !== color && !piece.captured) {
+    if (piece.color !== color && !piece.captured && piece.type !== `king`) {
       const moves = piece.getLegalMoves();
       if (moves.some(([r, c]) => r === king.position[0] && c === king.position[1])) {
         return true;
@@ -425,6 +636,10 @@ function isInCheck(color) {
   }
 
   return false;
+}
+
+function getAnyPieceAt(row, col) {
+  return pieces.find(p => p.position[0] === row && p.position[1] === col);
 }
 
 function getLegalMovesSafe(piece) {
@@ -488,7 +703,11 @@ function handlePieceClick(piece){
 
 function handleTileClick(row, col) {
   if (!selectedPiece) return;
-  if (piece.captured) return;
+  if (selectedPiece.captured) return;
+
+  const [oldRow, oldCol] = selectedPiece.position;
+
+  const originalPos = [...selectedPiece.position];
 
     // Get the legal moves
   const legalMoves = getLegalMovesSafe(selectedPiece);
@@ -514,13 +733,73 @@ if (target && target.color !== selectedPiece.color) {
 
   selectedPiece.hasMoved = true;
 
-  // Remove highlight
+      lastMove = {
+  piece: selectedPiece,
+  from: originalPos,
+  to: [row, col]
+};
+
+ if (
+  selectedPiece.type === "pawn" &&
+  Math.abs(col - originalPos[1]) === 1 &&
+  !target // square is empty, diagonal = en passant
+) {
+  const capturedPawn = getAnyPieceAt(oldRow, col); // row before the move, and the column you move into
+  if (
+    capturedPawn &&
+    capturedPawn.type === "pawn" &&
+    capturedPawn.color !== selectedPiece.color
+  ) {
+    capturedPawn.captured = true;
+    capturedPawn.element.remove();
+  }
+}
+
+  if (selectedPiece.type === `king` && Math.abs(col - oldCol) === 2) {
+    const rookCol = col === 6 ? 7 : 0;
+    const newRookCol = col === 6 ? 5 : 3;
+    const rook = getPieceAt(row, rookCol);
+
+    if (rook) {
+      tiles[row][newRookCol].div.appendChild(rook.element);
+      tiles[row][newRookCol];
+      rook.hasMoved = true;
+    }
+  }
+
+    // Check if move resets the 50-move counter
+const wasPawnMove = selectedPiece.type === "pawn" && 
+              (oldRow !== row || oldCol !== col);
+              
+const wasCapture = target && target.color !== selectedPiece.color;
+
+if (wasPawnMove || wasCapture) {
+  halfMoveCounter = 0;
+   console.log("Reset 50-move counter due to", wasPawnMove ? "pawn move" : "capture");
+} else {
+  halfMoveCounter++;
+  console.log("50-move counter incremented:", halfMoveCounter);
+}
+
+clearHighlights();
+
+if (
+  selectedPiece.type === "pawn" &&
+  (row === 0 || row === 7)
+) {
+  showPromotionOptions(selectedPiece, (newType) => {
+    promotePawn(selectedPiece, newType);
+    // Switch turn only after promotion is done
+    currentTurn = currentTurn === "white" ? "black" : "white";
+  });
+  return; // Skip rest of the function until promotion is complete
+}
+
+    // Remove highlight
   selectedPiece.element.classList.remove("selected");
 
   // Clear selection
   selectedPiece = null;
-
-  clearHighlights();
 
   const result = isCheckmateOrStalemate(currentTurn === "white" ? "black" : "white");
 
@@ -535,6 +814,35 @@ if (target && target.color !== selectedPiece.color) {
   }, 50); // 50 ms
   return;
 }
+ 
+// half move counter
+if (halfMoveCounter >= 100) {
+  setTimeout(() => {
+    alert("Draw by 50-move rule!");
+  }, 50);
+  return;
+}
+
+// draw by insufficient material
+if (isDrawByInsufficientMaterial()) {
+  setTimeout(() => {
+    alert("Draw by insufficient material!");
+  }, 50);
+  return;
+}
+
+//threefold repetition
+const key = getBoardStateKey();
+const count = boardHistory.get(key) || 0;
+boardHistory.set(key, count + 1);
+
+console.log("Current board repetition count for this state:", boardHistory.get(key));
+
+if (boardHistory.get(key) >= 3) {
+  setTimeout(() => {
+  alert("Draw by threefold repetition!") }, 50);
+  return;
+}
 
   //switch turn 
   currentTurn = currentTurn === `white` ? `black` : `white`;
@@ -547,6 +855,5 @@ function clearHighlights() {
     }
   }
 }
-
 
 setupPieces();

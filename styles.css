@@ -4,12 +4,12 @@ body{
 
 
 .white-tile{
-    background-color: #eee;
+    background-color: #f0d9b5;
 
 }
 
 .black-tile{
-    background-color: #444;
+    background-color: #b58863;
 }
 
 .white-tile, .black-tile {
@@ -72,3 +72,37 @@ border-radius: 4px;
   transform: translate(-50%, -50%); /* centers it exactly */
   pointer-events: none;   /* so it doesn't block clicks */
 }
+
+.promotion-overlayW,
+.promotion-overlayB {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 15px 15px 15px rgba(0,0,0,0.6);
+}
+
+.promotion-btn {
+  font-size: 40px;
+  padding: 3px;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.promotion-btn:hover {
+  transform: scale(1.1);
+}
+
+
+
+

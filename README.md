@@ -95,5 +95,6 @@ License:
 This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
 
 
-Contact
+Contact:
+
 If you have tips, ideas, or just want to say hi, reach me at astrovolerei@gmail.com

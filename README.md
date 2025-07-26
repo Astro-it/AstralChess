@@ -66,7 +66,7 @@ Clone the repository
 
 git clone https://github.com/Astro-it/AstralChess.git
 
-Run the game
+Run the game:
 Open index.html in your browser
 or Use a local development server (e.g., Live Server in VSCode)
 

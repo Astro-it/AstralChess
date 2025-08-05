@@ -72,7 +72,7 @@ or Use a local development server (e.g., Live Server in VSCode)
 
 Just want to play?
 You can play the game directly in your browser here:
-astralchess.com
+https://astralchess.com
 
 Roadmap:
 

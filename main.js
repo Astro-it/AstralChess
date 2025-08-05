@@ -66,7 +66,15 @@ class pawn extends piece{
 constructor(color, position){
     const element = document.createElement(`div`);
     element.classList.add(`piece`, `pawn`, color);
-    element.innerText = color === `white` ? "♙" : "♟︎";
+    
+
+    const pawnPiece = document.createElement(`img`);
+    pawnPiece.src = `pictures/chess-pieces/${color}-pawn.PNG`;
+    pawnPiece.classList.add(`piece`);
+    pawnPiece.draggable = false;
+
+    element.appendChild(pawnPiece);
+
     super(`pawn`, color, position, element, false, false);
 }
 
@@ -130,7 +138,15 @@ class rook extends piece{
 constructor(color, position){
     const element = document.createElement('div');
     element.classList.add('piece', 'rook', color);
-    element.innerText = color === `white` ? '♖' : "♜";
+
+    const rookPiece = document.createElement(`img`);
+    rookPiece.src = `pictures/chess-pieces/${color}-rook.PNG`;
+    rookPiece.classList.add(`piece`);
+    rookPiece.draggable = false;
+
+    element.appendChild(rookPiece);
+
+
     super(`rook`, color, position, element, false, false);
 }
 
@@ -172,7 +188,15 @@ class knight extends piece{
     constructor(color, position){
         const element = document.createElement('div');
         element.classList.add('piece', 'knight', color);
-        element.innerText = color === `white` ? '♘' : "♞";
+
+    const knightPiece = document.createElement(`img`);
+    knightPiece.src = `pictures/chess-pieces/${color}-knight.PNG`;
+    knightPiece.classList.add(`piece`);
+    knightPiece.draggable = false;
+
+    element.appendChild(knightPiece);
+
+        
         super(`knight`, color, position, element, false, false);
     }
 
@@ -212,7 +236,15 @@ class bishop extends piece{
     constructor(color, position){
          const element = document.createElement('div');
          element.classList.add('piece', 'bishop', color);
-         element.innerText = color === `white` ? '♗' : "♝";
+
+    const bishopPiece = document.createElement(`img`);
+    bishopPiece.src = `pictures/chess-pieces/${color}-bishop.PNG`;
+    bishopPiece.classList.add(`piece`);
+    bishopPiece.draggable = false;
+
+    element.appendChild(bishopPiece);
+
+
          super(`bishop`, color, position, element, false, false);
     }
 
@@ -255,7 +287,15 @@ class queen extends piece{
     constructor(color, position){
         const element = document.createElement('div');
         element.classList.add('piece', 'queen', color);
-        element.innerText = color === `white` ? '♕' : "♛";
+
+    const queenPiece = document.createElement(`img`);
+    queenPiece.src = `pictures/chess-pieces/${color}-queen.PNG`;
+    queenPiece.classList.add(`piece`);
+    queenPiece.draggable = false;
+
+    element.appendChild(queenPiece);
+
+
         super(`queen`, color, position, element, false, false);
     }
 
@@ -302,7 +342,15 @@ class king extends piece{
     constructor(color, position){
         const element = document.createElement('div');
         element.classList.add('piece', 'king', color);
-        element.innerText = color === `white` ? '♔' : "♚";
+        
+
+    const kingPiece = document.createElement(`img`);
+    kingPiece.src = `pictures/chess-pieces/${color}-king.PNG`;
+    kingPiece.classList.add(`piece`);
+    kingPiece.draggable = false;
+
+    element.appendChild(kingPiece);
+
         super(`king`, color, position, element, false, false);
     }
 
@@ -678,20 +726,23 @@ function isCheckmateOrStalemate(color) {
 }
 
 function handlePieceClick(piece){
+  const [row, col] = piece.position;
+
     if (piece.color !== currentTurn) return;
 
     clearHighlights();
 
     if (selectedPiece === piece){
-        selectedPiece.element.classList.remove(`selected`);
+        tiles[row][col].div.classList.remove(`selected`);
         selectedPiece = null;
     }
     else{
         if (selectedPiece){
-            selectedPiece.element.classList.remove("selected");
+          const [prevRow, prevCol] = selectedPiece.position;
+          tiles[prevRow][prevCol].div.classList.remove("selected");
         }
         selectedPiece = piece;
-        piece.element.classList.add(`selected`);
+        tiles[row][col].div.classList.add("selected");
 
          const legalMoves = getLegalMovesSafe(piece);
         for (const [row, col] of legalMoves) {
@@ -796,7 +847,7 @@ if (
 }
 
     // Remove highlight
-  selectedPiece.element.classList.remove("selected");
+  tiles[oldRow][oldCol].div.classList.remove("selected");
 
   // Clear selection
   selectedPiece = null;
@@ -851,7 +902,7 @@ if (boardHistory.get(key) >= 3) {
 function clearHighlights() {
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
-      tiles[row][col].div.classList.remove("legalMoves");
+      tiles[row][col].div.classList.remove("selected", "legalMoves");
     }
   }
 }

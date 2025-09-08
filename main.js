@@ -1037,6 +1037,7 @@ if (count > 1) {
 }
 
 console.log("After undo, board repetition count for this state is:", boardHistory.get(key) || 0);
+turnIndicator()
 }
 
 

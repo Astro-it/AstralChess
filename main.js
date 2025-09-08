@@ -1,11 +1,13 @@
-
 const boardHistory = new Map();
-const pieces = [];      // creates a pieces array
-const tiles = [];       // creates a tiles array
+const pieces = [];
+const tiles = [];
 let selectedPiece = null;       // declares the vriable selectedPiece and assigns the value null
 let currentTurn = `white`;         // creates a current turn variable and assigns white to it
+turnIndicator()
 let lastMove = null;
 let halfMoveCounter = 0;
+let GameHistory = [];
+let MoveNumber = 1;
 
 class tile{         //creates a tile class
 constructor(row, column){           // makes a constructor with the parameters row and column
@@ -38,14 +40,16 @@ t.color = true;         // triggers the setter and applies the tile color
 t.div.addEventListener("click", () => handleTileClick(row, col));
 }
 }
-class piece{            // creates a class for all pieces
-constructor(type, color, position, element, hasMoved, captured){        // makes a constructor with the parameters type, color, position, element, hasMoved, captured
+class piece{
+constructor(type, color, position, element, hasMoved, captured, id){        // makes a constructor with the parameters type, color, position, element, hasMoved, captured
     this.type = type;                       // assigns the parameters to instance properties
     this.color = color;
     this.position = position;
     this.element = element;
     this.hasMoved = hasMoved;
     this.captured = captured;
+    this.id = id;
+    this.TimesMoved = 0;
 }
 }
 
@@ -63,7 +67,7 @@ function getPieceAt(row, col) {
 
 
 class pawn extends piece{
-constructor(color, position){
+constructor(color, position, id){
     const element = document.createElement(`div`);
     element.classList.add(`piece`, `pawn`, color);
     
@@ -75,7 +79,7 @@ constructor(color, position){
 
     element.appendChild(pawnPiece);
 
-    super(`pawn`, color, position, element, false, false);
+    super(`pawn`, color, position, element, false, false, id);
 }
 
 getLegalMoves() {
@@ -135,7 +139,7 @@ getLegalMoves() {
 }
     
 class rook extends piece{
-constructor(color, position){
+constructor(color, position, id){
     const element = document.createElement('div');
     element.classList.add('piece', 'rook', color);
 
@@ -147,7 +151,7 @@ constructor(color, position){
     element.appendChild(rookPiece);
 
 
-    super(`rook`, color, position, element, false, false);
+    super(`rook`, color, position, element, false, false, id);
 }
 
 getLegalMoves() {
@@ -185,7 +189,7 @@ getLegalMoves() {
 }
 
 class knight extends piece{
-    constructor(color, position){
+    constructor(color, position, id){
         const element = document.createElement('div');
         element.classList.add('piece', 'knight', color);
 
@@ -197,7 +201,7 @@ class knight extends piece{
     element.appendChild(knightPiece);
 
         
-        super(`knight`, color, position, element, false, false);
+        super(`knight`, color, position, element, false, false, id);
     }
 
     getLegalMoves() {
@@ -233,7 +237,7 @@ class knight extends piece{
 }
 
 class bishop extends piece{
-    constructor(color, position){
+    constructor(color, position, id){
          const element = document.createElement('div');
          element.classList.add('piece', 'bishop', color);
 
@@ -245,7 +249,7 @@ class bishop extends piece{
     element.appendChild(bishopPiece);
 
 
-         super(`bishop`, color, position, element, false, false);
+         super(`bishop`, color, position, element, false, false, id);
     }
 
     getLegalMoves() {
@@ -284,7 +288,7 @@ class bishop extends piece{
 }
 
 class queen extends piece{
-    constructor(color, position){
+    constructor(color, position, id){
         const element = document.createElement('div');
         element.classList.add('piece', 'queen', color);
 
@@ -296,7 +300,7 @@ class queen extends piece{
     element.appendChild(queenPiece);
 
 
-        super(`queen`, color, position, element, false, false);
+        super(`queen`, color, position, element, false, false, id);
     }
 
     getLegalMoves() {
@@ -339,7 +343,7 @@ class queen extends piece{
 }
 
 class king extends piece{
-    constructor(color, position){
+    constructor(color, position, id){
         const element = document.createElement('div');
         element.classList.add('piece', 'king', color);
         
@@ -351,7 +355,7 @@ class king extends piece{
 
     element.appendChild(kingPiece);
 
-        super(`king`, color, position, element, false, false);
+        super(`king`, color, position, element, false, false, id);
     }
 
     getLegalMoves() {
@@ -421,24 +425,34 @@ class king extends piece{
 }
 
 function setupPieces(){
+  currentTurn = `white`;
+  turnIndicator()
+  MoveNumber = 1;
+  
+  // Remove old DOM elements
+  for (const piece of pieces) {
+    piece.element.remove();
+  }
+
+  // Clear the pieces array
+  pieces.length = 0;
+
 for (let col = 0; col < 8; col++) { 
- const whitePawn = new pawn("white", [6, col]); 
- tiles[6] 
- [col].div.appendChild(whitePawn.element);
+ const whitePawn = new pawn("white", [6, col], `WPawn${col}`);
+ tiles[6][col].div.appendChild(whitePawn.element);
  pieces.push(whitePawn);
  }
  
  for (let col = 0; col < 8; col++) {
-   const blackPawn = new pawn("black", [1, col]);
-   tiles[1]
-   [col].div.appendChild(blackPawn.element);
+   const blackPawn = new pawn("black", [1, col], `BPawn${col}`);
+   tiles[1][col].div.appendChild(blackPawn.element);
    pieces.push(blackPawn);
  }
  
- const whiteRook1 = new rook('white', [7, 0]);
- const whiteRook2 = new rook('white', [7, 7]);
- const blackRook1 = new rook('black', [0, 0]);
- const blackRook2 = new rook('black', [0, 7]);
+ const whiteRook1 = new rook('white', [7, 0], `WRook1`);
+ const whiteRook2 = new rook('white', [7, 7], `WRook2`);
+ const blackRook1 = new rook('black', [0, 0], `BRook1`);
+ const blackRook2 = new rook('black', [0, 7], `BRook2`);
  tiles[7][0].div.appendChild(whiteRook1.element);
  tiles[7][7].div.appendChild(whiteRook2.element);
  tiles[0][0].div.appendChild(blackRook1.element);
@@ -448,10 +462,10 @@ for (let col = 0; col < 8; col++) {
  pieces.push(blackRook1);
  pieces.push(blackRook2);
  
- const whiteKnight1 = new knight('white', [7, 1]);
- const whiteKnight2 = new knight('white', [7, 6]);
- const blackKnight1 = new knight('black', [0, 1]);
- const blackKnight2 = new knight('black', [0, 6]);
+ const whiteKnight1 = new knight('white', [7, 1], `WKnight1`);
+ const whiteKnight2 = new knight('white', [7, 6], `WKnight2`);
+ const blackKnight1 = new knight('black', [0, 1], `BKnight1`);
+ const blackKnight2 = new knight('black', [0, 6], `BKnight2`);
  tiles[7][1].div.appendChild(whiteKnight1.element);
  tiles[7][6].div.appendChild(whiteKnight2.element);
  tiles[0][1].div.appendChild(blackKnight1.element);
@@ -461,10 +475,10 @@ for (let col = 0; col < 8; col++) {
  pieces.push(blackKnight1);
  pieces.push(blackKnight2);
  
- const whiteBishop1 = new bishop('white', [7, 2]);
- const whiteBishop2 = new bishop('white', [7, 5]);
- const blackBishop1 = new bishop('black', [0, 2]);
- const blackBishop2 = new bishop('black', [0, 5]);
+ const whiteBishop1 = new bishop('white', [7, 2], `WBishop1`);
+ const whiteBishop2 = new bishop('white', [7, 5], `WBishop2`);
+ const blackBishop1 = new bishop('black', [0, 2], `BBishop1`);
+ const blackBishop2 = new bishop('black', [0, 5], `BBishop2`);
  tiles[7][2].div.appendChild(whiteBishop1.element);
  tiles[7][5].div.appendChild(whiteBishop2.element);
  tiles[0][2].div.appendChild(blackBishop1.element);
@@ -474,15 +488,15 @@ for (let col = 0; col < 8; col++) {
  pieces.push(blackBishop1);
  pieces.push(blackBishop2);
  
- const whiteQueen = new queen('white', [7, 3]);
- const blackQueen = new queen('black', [0, 3]);
+ const whiteQueen = new queen('white', [7, 3], `WQueen`);
+ const blackQueen = new queen('black', [0, 3], `BQueen`);
  tiles[7][3].div.appendChild(whiteQueen.element);
  tiles[0][3].div.appendChild(blackQueen.element);
  pieces.push(whiteQueen);
  pieces.push(blackQueen);
  
- const whiteKing = new king('white', [7, 4]);
- const blackKing = new king('black', [0, 4]);
+ const whiteKing = new king('white', [7, 4], `WKing`);
+ const blackKing = new king('black', [0, 4], `BKing`);
  tiles[7][4].div.appendChild(whiteKing.element);
  tiles[0][4].div.appendChild(blackKing.element);
  pieces.push(whiteKing);
@@ -782,7 +796,14 @@ if (target && target.color !== selectedPiece.color) {
   // Update its position
   selectedPiece.position = [row, col];
 
-  selectedPiece.hasMoved = true;
+  selectedPiece.TimesMoved++;
+
+  if(selectedPiece.TimesMoved > 0) {
+    selectedPiece.hasMoved = true;
+  }
+  else{
+    selectedPiece.hasMoved = false;
+  }
 
       lastMove = {
   piece: selectedPiece,
@@ -813,7 +834,7 @@ if (target && target.color !== selectedPiece.color) {
 
     if (rook) {
       tiles[row][newRookCol].div.appendChild(rook.element);
-      tiles[row][newRookCol];
+      rook.position = [row, newRookCol];
       rook.hasMoved = true;
     }
   }
@@ -842,9 +863,12 @@ if (
     promotePawn(selectedPiece, newType);
     // Switch turn only after promotion is done
     currentTurn = currentTurn === "white" ? "black" : "white";
+    turnIndicator()
   });
   return; // Skip rest of the function until promotion is complete
 }
+
+recordMove(selectedPiece, originalPos, [row, col], target, getBoardStateKey());
 
     // Remove highlight
   tiles[oldRow][oldCol].div.classList.remove("selected");
@@ -887,7 +911,7 @@ const key = getBoardStateKey();
 const count = boardHistory.get(key) || 0;
 boardHistory.set(key, count + 1);
 
-console.log("Current board repetition count for this state:", boardHistory.get(key));
+console.log("Current board repetition count for this state is:", boardHistory.get(key));
 
 if (boardHistory.get(key) >= 3) {
   setTimeout(() => {
@@ -895,8 +919,16 @@ if (boardHistory.get(key) >= 3) {
   return;
 }
 
+
   //switch turn 
   currentTurn = currentTurn === `white` ? `black` : `white`;
+
+  if(currentTurn == `white`){
+    MoveNumber++
+  }
+  console.log(`MoveNumber = ${MoveNumber}`);
+  turnIndicator();
+  console.log(GameHistory);
 }
 
 function clearHighlights() {
@@ -908,3 +940,106 @@ function clearHighlights() {
 }
 
 setupPieces();
+function turnIndicator() {
+  const whiteTurnIndicator = document.getElementById('turn-indicator-white');
+  const blackTurnIndicator = document.getElementById('turn-indicator-black');
+
+   if (!whiteTurnIndicator || !blackTurnIndicator) {
+    console.warn('Turn indicator elements not found (check IDs/classes).');
+    return;
+  }
+
+  if (currentTurn === 'white') {
+    whiteTurnIndicator.classList.add('active');
+    blackTurnIndicator.classList.remove('active');
+  } else if (currentTurn === 'black') {
+    blackTurnIndicator.classList.add('active');
+    whiteTurnIndicator.classList.remove('active');
+  }
+}
+
+
+const restartBtn = document.getElementById(`restart-btn`);
+restartBtn.addEventListener(`click`, resetGame);
+
+function resetGame(){
+  setupPieces()
+  boardHistory.clear();
+  GameHistory.length = 0;
+  halfMoveCounter = 0;
+  console.log(`The Game was Restartet`);
+}
+
+
+
+
+function recordMove(piece, from, to, target, key){
+  GameHistory.push({
+    BoardStateKey: key,
+    from: [...from],
+    to: [...to],
+    pieceId: piece.id,
+    capturedPiece: target ? target : null,
+    hasMoved: piece.hasMoved,
+    halfMoveCounter: halfMoveCounter,
+    turn: currentTurn,
+    MoveNumber : MoveNumber,
+    TimesMoved : piece.TimesMoved,
+  });
+}
+
+
+const UndoButton = document.getElementById(`undo-btn`);
+UndoButton.addEventListener(`click`, UndoMove);
+
+function UndoMove(){
+const PoppedMove = GameHistory.pop();
+ if (!PoppedMove) return;
+
+console.log(PoppedMove);
+const PreviousMove = PoppedMove.from;
+const [PrevRow,PrevCol] = PreviousMove;
+const piece = pieces.find(p => p.id === PoppedMove.pieceId);
+if (!piece) return;
+
+tiles[PrevRow][PrevCol].div.appendChild(piece.element);
+piece.position = [PrevRow, PrevCol];
+
+if (PoppedMove.capturedPiece) {
+   const Captured = PoppedMove.capturedPiece
+   if (Captured) {
+     const [Row, Col] = Captured.position;
+     tiles[Row][Col].div.appendChild(Captured.element);
+     Captured.position = [Row, Col];
+     Captured.captured = false;
+   }
+ } 
+
+currentTurn = PoppedMove.turn;
+piece.TimesMoved = Math.max(0, piece.TimesMoved - 1);
+if(piece.TimesMoved > 0) {
+  piece.hasMoved = true;
+}
+else{
+  piece.hasMoved = false;
+}
+
+halfMoveCounter = Math.max(0, halfMoveCounter - 1);
+
+const key = PoppedMove.BoardStateKey
+console.log(key);
+const count = boardHistory.get(key) || 0;
+
+if (count > 1) {
+  boardHistory.set(key, count - 1);
+} else {
+  boardHistory.delete(key);
+}
+
+console.log("After undo, board repetition count for this state is:", boardHistory.get(key) || 0);
+}
+
+
+
+
+setupPieces();  

@@ -101,20 +101,28 @@ border-radius: 4px; /* Optional for rounded corners */
 }
 
 .turn-indicator-white {
+  position: absolute;
+  top: 22px;
+  left: 150px;
   color:rgba(0, 0, 0, 0.6);
   background-color:rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: 6px;
-  width: 84px;
+  width: 110px;
+  font-size: 20px;
   transition: background-color 0.3s, color 0.3s;
 }
 
 .turn-indicator-black {
+  position: absolute;
+  top: 47px;
+  left: 150px;
   color:rgba(255, 255, 255, 0.4);
   background-color:rgba(0, 0, 0, 0.2);
   border: none;
   border-radius: 6px;
-  width: 84px;
+  width: 110px;
+  font-size: 20px;
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -126,4 +134,47 @@ border-radius: 4px; /* Optional for rounded corners */
 .turn-indicator-black.active{
   color:rgb(255, 255, 255);
   background-color:rgb(0, 0, 0);
+}
+
+#game-panel{
+  position: absolute;
+  border-radius: 15px;
+  right: 150px;
+  top: 160px;
+  height: 650px;
+  width: 400px;
+  background-color: hsl(0, 0%, 9%);
+}
+
+#restart-btn{
+position: absolute;
+box-shadow: 0 0 10px 1px #747474;
+font-size: 20px;
+top: 450px;
+left: 240px;
+background-color: hsl(0, 0%, 50%);
+border-color: gray;
+border-radius: 20px;
+height: 50px;
+width: 120px;
+}
+
+#undo-btn{
+position: absolute;
+box-shadow: 0 0 10px 1px #747474;
+font-size: 20px;
+top: 450px;
+left: 50px;
+background-color: hsl(0, 0%, 50%);
+border-color: gray;
+border-radius: 20px;
+height: 50px;
+width: 120px;
+}
+
+#restart-btn:hover{
+background-color: hsl(0, 0%, 45%)
+}
+#undo-btn:hover{
+  background-color: hsl(0, 0%, 45%)
 }

@@ -59,6 +59,8 @@ Features:
 
 • Visual move indicators for selected pieces
 
+• Undo move functionality
+
 
 Installation:
 
@@ -76,8 +78,6 @@ https://astralchess.com
 
 Roadmap:
 
-• custom drawn chess pieces (in progress)
-• Undo move functionality
 • Timer/clock for moves
 • AI opponent
 • Multiplayer online mode

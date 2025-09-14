@@ -178,3 +178,39 @@ background-color: hsl(0, 0%, 45%)
 #undo-btn:hover{
   background-color: hsl(0, 0%, 45%)
 }
+
+#WinDrawScreen{
+  width: 411px;
+  height: 300px;
+  background-color: hsl(200, 20%, 68%);
+  border-radius: 20px;
+  box-shadow: -15px 15px 15px #000000a9;
+}
+
+.h1{
+  text-align: center;
+} 
+
+#RestartBtn{
+  position: absolute;
+  right: 40px;
+  bottom: 100px;
+  height: 50px;
+  width: 160px;
+  background-color: hsl(200, 34%, 58%);
+  border-radius: 20px;
+  box-shadow: -5px 5px 20px #000000a9;
+  font-size: 25px;
+}
+
+#CloseBtn{
+  position: absolute;
+  left: 40px;
+  bottom: 100px;
+  height: 50px;
+  width: 160px;
+  background-color: hsl(200, 34%, 58%);
+  border-radius: 20px;
+  box-shadow: -5px 5px 20px #000000a9;
+  font-size: 25px;
+}

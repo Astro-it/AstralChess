@@ -882,9 +882,9 @@ recordMove(selectedPiece, originalPos, [row, col], target, getBoardStateKey());
   // Delay alert slightly so DOM updates first
   setTimeout(() => {
     if (result === "checkmate") {
-      alert(`${currentTurn} wins by checkmate!`);
+      WinByCheckmate();
     } else if (result === "stalemate") {
-      alert("Draw by stalemate!");
+      DrawByStalemate();
     }
   }, 50); // 50 ms
   return;
@@ -893,7 +893,7 @@ recordMove(selectedPiece, originalPos, [row, col], target, getBoardStateKey());
 // half move counter
 if (halfMoveCounter >= 100) {
   setTimeout(() => {
-    alert("Draw by 50-move rule!");
+    DrawBy50MoveRule();
   }, 50);
   return;
 }
@@ -901,7 +901,7 @@ if (halfMoveCounter >= 100) {
 // draw by insufficient material
 if (isDrawByInsufficientMaterial()) {
   setTimeout(() => {
-    alert("Draw by insufficient material!");
+    DrawByInsufficientMaterial();
   }, 50);
   return;
 }
@@ -963,6 +963,8 @@ const restartBtn = document.getElementById(`restart-btn`);
 restartBtn.addEventListener(`click`, resetGame);
 
 function resetGame(){
+  clearHighlights();
+  selectedPiece = null;
   setupPieces()
   boardHistory.clear();
   GameHistory.length = 0;
@@ -993,6 +995,9 @@ const UndoButton = document.getElementById(`undo-btn`);
 UndoButton.addEventListener(`click`, UndoMove);
 
 function UndoMove(){
+clearHighlights();
+selectedPiece = null;
+
 const PoppedMove = GameHistory.pop();
  if (!PoppedMove) return;
 
@@ -1027,7 +1032,6 @@ else{
 halfMoveCounter = Math.max(0, halfMoveCounter - 1);
 
 const key = PoppedMove.BoardStateKey
-console.log(key);
 const count = boardHistory.get(key) || 0;
 
 if (count > 1) {
@@ -1040,7 +1044,105 @@ console.log("After undo, board repetition count for this state is:", boardHistor
 turnIndicator()
 }
 
+const WinDrawScreen = document.getElementById(`WinDrawScreen`);
+
+const RestartBtn = document.getElementById(`RestartBtn`);
+const CloseBtn = document.getElementById(`CloseBtn`);
 
 
+function WinByCheckmate(){
+  const h1 = document.createElement(`h1`);
+  h1.classList.add(`h1`);
+  h1.textContent = `${currentTurn} won through checkmate`;
+
+RestartBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  resetGame();
+  h1.textContent = ``;
+});
+CloseBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  h1.textContent = ``;
+});
+
+  WinDrawScreen.appendChild(h1);
+  WinDrawScreen.showModal();
+}
+
+function DrawByStalemate(){
+  const h1 = document.createElement(`h1`);
+  h1.classList.add(`h1`);
+  h1.textContent = `Draw by stalemate!`;
+
+RestartBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  resetGame();
+  h1.textContent = ``;
+});
+CloseBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  h1.textContent = ``;
+});
+
+  WinDrawScreen.appendChild(h1);
+  WinDrawScreen.showModal();
+}
+
+function DrawBy50MoveRule(){
+  const h1 = document.createElement(`h1`);
+  h1.classList.add(`h1`);
+  h1.textContent = `Draw by 50-move rule!`;
+
+RestartBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  resetGame();
+  h1.textContent = ``;
+});
+CloseBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  h1.textContent = ``;
+});
+
+  WinDrawScreen.appendChild(h1);
+  WinDrawScreen.showModal();
+}
+
+function DrawByInsufficientMaterial(){
+  const h1 = document.createElement(`h1`);
+  h1.classList.add(`h1`);
+  h1.textContent = `Draw by insufficient material!`;
+
+RestartBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  resetGame();
+  h1.textContent = ``;
+});
+CloseBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  h1.textContent = ``;
+});
+
+  WinDrawScreen.appendChild(h1);
+  WinDrawScreen.showModal();
+}
+
+function DrawByThreefoldRepetition(){
+  const h1 = document.createElement(`h1`);
+  h1.classList.add(`h1`);
+  h1.textContent = `Draw by threefold repetition!`;
+
+RestartBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  resetGame();
+  h1.textContent = ``;
+});
+CloseBtn.addEventListener(`click`, () => {
+  WinDrawScreen.close();
+  h1.textContent = ``;
+});
+
+  WinDrawScreen.appendChild(h1);
+  WinDrawScreen.showModal();
+}
 
 setupPieces();  

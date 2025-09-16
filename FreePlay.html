@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="eng">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +7,28 @@
     and full support for advanced rules like castling, en passant, and promotion.
     Challenge yourself or your friends in a stylish browser-based chess experience.">
 
-    <title>astral chess Home</title>
+    <title>astral chess</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-        <button id="MenuBtn">☰</button>
+
+    <div id="board">
+
+    </div>
+
+    <aside id="game-panel">
+        <button id="restart-btn">Restart</button>
+        <button id="undo-btn">Undo Move</button>
+        <div id="turn-indicator-white" class="turn-indicator-white">White's Turn</div>
+        <div id="turn-indicator-black" class="turn-indicator-black">Black's Turn</div>
+    </aside>
+
+    <dialog id="WinDrawScreen">
+        <button id="RestartBtn">Restart</button>
+        <button id="CloseBtn">Close</button>
+    </dialog>
+
+    <button id="MenuBtn">☰</button>
 
     <div id="sidebar">
         <ul>
@@ -21,14 +37,6 @@
         </ul>
     </div>
 
-    <h1 id="home-header">Welcome To Astral Chess</h1>
-
-
-    <div class="GamemodeCard">
-        <a class="gamemodeLink" href="FreePlay.html"><img id="img" src="chessboard.png"><br>
-        <h1 class="gamemodeH1">Free Play</h1></a>
-    </div>
-
-    <script src="home.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

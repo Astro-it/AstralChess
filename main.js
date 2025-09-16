@@ -1072,7 +1072,7 @@ CloseBtn.addEventListener(`click`, () => {
 function DrawByStalemate(){
   const h1 = document.createElement(`h1`);
   h1.classList.add(`h1`);
-  h1.textContent = `Draw by stalemate!`;
+  h1.textContent = `Draw by stalemate`;
 
 RestartBtn.addEventListener(`click`, () => {
   WinDrawScreen.close();
@@ -1091,7 +1091,7 @@ CloseBtn.addEventListener(`click`, () => {
 function DrawBy50MoveRule(){
   const h1 = document.createElement(`h1`);
   h1.classList.add(`h1`);
-  h1.textContent = `Draw by 50-move rule!`;
+  h1.textContent = `Draw by 50-move rule`;
 
 RestartBtn.addEventListener(`click`, () => {
   WinDrawScreen.close();
@@ -1110,7 +1110,7 @@ CloseBtn.addEventListener(`click`, () => {
 function DrawByInsufficientMaterial(){
   const h1 = document.createElement(`h1`);
   h1.classList.add(`h1`);
-  h1.textContent = `Draw by insufficient material!`;
+  h1.textContent = `Draw by insufficient material`;
 
 RestartBtn.addEventListener(`click`, () => {
   WinDrawScreen.close();
@@ -1129,7 +1129,7 @@ CloseBtn.addEventListener(`click`, () => {
 function DrawByThreefoldRepetition(){
   const h1 = document.createElement(`h1`);
   h1.classList.add(`h1`);
-  h1.textContent = `Draw by threefold repetition!`;
+  h1.textContent = `Draw by threefold repetition`;
 
 RestartBtn.addEventListener(`click`, () => {
   WinDrawScreen.close();
@@ -1146,3 +1146,17 @@ CloseBtn.addEventListener(`click`, () => {
 }
 
 setupPieces();  
+
+const menuBtn = document.getElementById('MenuBtn');
+const sidebar = document.getElementById('sidebar');
+
+
+menuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+});
+
+document.addEventListener('keydown', (event) => {
+    if(event.key === 'Escape' && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+    }
+});

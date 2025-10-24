@@ -8,6 +8,10 @@ let lastMove = null;
 let halfMoveCounter = 0;
 let GameHistory = [];
 let MoveNumber = 1;
+let enPassantVulnerable = false;
+let enPassantPawn = null;
+let enPassantTurn = null;
+let enPassantAllowedBy;
 
 class tile{         //creates a tile class
 constructor(row, column){           // makes a constructor with the parameters row and column
@@ -126,9 +130,8 @@ getLegalMoves() {
     sidePawn &&
     sidePawn.type === "pawn" &&
     sidePawn.color !== this.color &&
-    sidePawn === lastMove?.piece &&
-    Math.abs(lastMove.from[0] - lastMove.to[0]) === 2 &&
-    lastMove.to[0] === row
+    sidePawn.enPassantVulnerable &&
+    sidePawn.color !== enPassantAllowedBy
   ) {
     moves.push([row + direction, sideCol]);
   }
@@ -811,6 +814,28 @@ if (target && target.color !== selectedPiece.color) {
   to: [row, col]
 };
 
+isUndoing = false;
+
+let From;
+let To;
+let Id;
+let SpecialCapture
+
+
+if (selectedPiece.type === "pawn" && Math.abs(oldRow - row) === 2) {
+  enPassantPawn = selectedPiece;
+  enPassantAllowedBy = selectedPiece.color === "white" ? "black" : "white";
+  enPassantTurn = MoveNumber;
+  selectedPiece.enPassantVulnerable = true;
+}
+if (enPassantPawn && enPassantTurn < MoveNumber - 1) {
+    enPassantPawn.enPassantVulnerable = false;
+    enPassantPawn = null;
+    enPassantTurn = null;
+  }
+
+console.log(selectedPiece.enPassantVulnerable);
+
  if (
   selectedPiece.type === "pawn" &&
   Math.abs(col - originalPos[1]) === 1 &&
@@ -820,10 +845,15 @@ if (target && target.color !== selectedPiece.color) {
   if (
     capturedPawn &&
     capturedPawn.type === "pawn" &&
-    capturedPawn.color !== selectedPiece.color
+    capturedPawn.color !== selectedPiece.color &&
+    capturedPawn.enPassantVulnerable &&
+    selectedPiece.color === enPassantAllowedBy
   ) {
     capturedPawn.captured = true;
     capturedPawn.element.remove();
+    SpecialCapture = capturedPawn;
+    console.log(capturedPawn);
+    capturedPawn.enPassantVulnerable = false;
   }
 }
 
@@ -836,6 +866,9 @@ if (target && target.color !== selectedPiece.color) {
       tiles[row][newRookCol].div.appendChild(rook.element);
       rook.position = [row, newRookCol];
       rook.hasMoved = true;
+      From = [row, rookCol];
+      To = [row, newRookCol];
+      Id = rook.id;
     }
   }
 
@@ -868,7 +901,7 @@ if (
   return; // Skip rest of the function until promotion is complete
 }
 
-recordMove(selectedPiece, originalPos, [row, col], target, getBoardStateKey());
+recordMove(selectedPiece, originalPos, [row, col], target, getBoardStateKey(), From, To, Id, SpecialCapture);
 
     // Remove highlight
   tiles[oldRow][oldCol].div.classList.remove("selected");
@@ -975,7 +1008,7 @@ function resetGame(){
 
 
 
-function recordMove(piece, from, to, target, key){
+function recordMove(piece, from, to, target, key, SpecialFrom, SpecialTo, SpecialId, SpecialCapture){
   GameHistory.push({
     BoardStateKey: key,
     from: [...from],
@@ -987,6 +1020,13 @@ function recordMove(piece, from, to, target, key){
     turn: currentTurn,
     MoveNumber : MoveNumber,
     TimesMoved : piece.TimesMoved,
+    SpecialMoves:{
+      from: SpecialFrom,
+      id: SpecialId,
+      Captured: SpecialCapture,
+      EnPassantPawn: enPassantPawn || null,
+      EnPassantTurn: enPassantTurn || null
+    }
   });
 }
 
@@ -1003,22 +1043,60 @@ const PoppedMove = GameHistory.pop();
 
 console.log(PoppedMove);
 const PreviousMove = PoppedMove.from;
+const SpecialPrevMove = PoppedMove.SpecialMoves.from;
+
+if (currentTurn === `white`){
+  MoveNumber =  MoveNumber - 1;
+  console.log(MoveNumber);
+}
+
 const [PrevRow,PrevCol] = PreviousMove;
 const piece = pieces.find(p => p.id === PoppedMove.pieceId);
 if (!piece) return;
 
+if(SpecialPrevMove){
+const [SpecialPrevRow,SpecialPrevCol] = SpecialPrevMove;
+const SpecialPiece = pieces.find(sp => sp.id === PoppedMove.SpecialMoves.id);
+
+tiles[SpecialPrevRow][SpecialPrevCol].div.appendChild(SpecialPiece.element);
+SpecialPiece.position = [SpecialPrevRow,SpecialPrevCol];
+
+SpecialPiece.TimesMoved = Math.max(0, SpecialPiece.TimesMoved - 1);
+if(SpecialPiece.TimesMoved > 0) {
+  SpecialPiece.hasMoved = true;
+}
+else{
+  SpecialPiece.hasMoved = false;
+}
+}
+
 tiles[PrevRow][PrevCol].div.appendChild(piece.element);
 piece.position = [PrevRow, PrevCol];
 
+console.log()
+
+if (PoppedMove.SpecialMoves.Captured) {
+   const Captured = PoppedMove.SpecialMoves.Captured;
+   let EnPassantTurn = PoppedMove.SpecialMoves.EnPassantTurn;
+   if (Captured) {
+     const [Row, Col] = Captured.position;
+     tiles[Row][Col].div.appendChild(Captured.element);
+     Captured.position = [Row, Col];
+     Captured.enPassantVulnerable = true;
+     Captured.captured = false;
+     console.log(Captured);
+   }
+ }
+
 if (PoppedMove.capturedPiece) {
-   const Captured = PoppedMove.capturedPiece
+   const Captured = PoppedMove.capturedPiece;
    if (Captured) {
      const [Row, Col] = Captured.position;
      tiles[Row][Col].div.appendChild(Captured.element);
      Captured.position = [Row, Col];
      Captured.captured = false;
    }
- } 
+ }
 
 currentTurn = PoppedMove.turn;
 piece.TimesMoved = Math.max(0, piece.TimesMoved - 1);

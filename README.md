@@ -1,6 +1,6 @@
 Astral Chess
 
-A simple, fun chess game built with JavaScript to learn and practice coding. No AI or online multiplayer yet — Play chess locally against another player on the same device.
+A simple, fun chess game built with JavaScript to learn and practice coding. No AI or online multiplayer yet. Play chess locally against another player on the same device.
 
 
 Rules:
@@ -76,12 +76,11 @@ Just want to play?
 You can play the game directly in your browser here:
 https://astralchess.com
 
-Roadmap:
+future features:
 
 • Timer/clock for moves
 • AI opponent
 • Multiplayer online mode
-• 5d chess (this is probably going to be really hard and take very long)
 • 4 player chess
 
 
@@ -97,4 +96,4 @@ This project is licensed under the GNU General Public License v3.0. See the [LIC
 
 Contact:
 
-If you have tips, ideas, or just want to say hi, reach me at astrovolerei@gmail.com
+If you have tips, ideas, or just want to say hi, you can write in the comments.
